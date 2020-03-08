@@ -7,8 +7,8 @@
     <link rel="alternate" href="https://zsou.github.io"/>
     <link rel="self" href="https://zsou.github.io/atom.xml"/>
     <subtitle>温故而知新</subtitle>
-    <logo>https://zsou.github.io/images/avatar.png</logo>
-    <icon>https://zsou.github.io/favicon.ico</icon>
+    <logo>https://zsou.github.io/images/avatar_256x256.png</logo>
+    <icon>https://zsou.github.io/favicon_64x64.png</icon>
     <rights>All rights reserved 2020, 技术宅</rights>
     <entry>
         <title type="html"><![CDATA[Hello Gridea]]></title>
