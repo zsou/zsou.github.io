@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-    <id>https://zsou.github.io/</id>
+    <id>https://zsou.github.io</id>
     <title>技术宅</title>
-    <updated>2020-03-08T04:44:37.426Z</updated>
+    <updated>2020-03-08T07:37:10.490Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
-    <link rel="alternate" href="https://zsou.github.io/"/>
+    <link rel="alternate" href="https://zsou.github.io"/>
     <link rel="self" href="https://zsou.github.io/atom.xml"/>
     <subtitle>温故而知新</subtitle>
     <logo>https://zsou.github.io/images/avatar.png</logo>
