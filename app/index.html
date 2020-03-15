@@ -5,7 +5,7 @@
     <!-- 设置视口，内容宽度等于用户设备宽度，用户不能缩放 -->
     <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <title>八方向操作杆</title>
+    <title>神宠三国志</title>
     <script src="js/jquery-1.11.0.min.js"></script>
     <style>
         * {
@@ -15,41 +15,37 @@
         }
 
         html {
-            /*用于获取屏幕的可视宽高，通过js获取html的属性即可*/
+            /*用于 获取 屏幕的可视宽高，通过js获取html的属性即可*/
             width: 100%;
             height: 100%;
             overflow: hidden;
         }
 
         body {
-            /*让 body 初始 width 和 height 就等于页面可视区域的宽高*/
+            /*让 body 初始 width 和 height 就 等于 页面可视区域的 宽高*/
             position: fixed;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
             color: #FFF;
-            letter-spacing: 4px;
             font-size: 28px;
-            display: flex;
             background-color: black;
         }
 
         .drag {
             /* 拖动区域，在js里设置宽高 */
-            border-radius: 50%;
-            left: 0;
-            top: 0;
+            right: 0;
+            bottom: 0;
             position: fixed;
-
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
         .joystick {
-            top: 3rem;
-            left: 2rem;
+            left: 50%;
+            bottom: 0;
             position: absolute;
             background-color: rgba(200, 200, 200, 0.3);
             /* 操作杆背景颜色*/
@@ -93,72 +89,65 @@
 
 <body style="">
     <!-- 摇杆 -->
-    <div class="joystick" id="joystick" style="height: 6rem; width: 6rem;">
+    <div class="joystick" id="joystick" style="height: 6rem; width: 6rem; margin-left: -3.5rem; margin-bottom: 2rem;">
         <div class="inside" id="inside" style="height: 1.4rem; width: 1.4rem; margin: 2rem;"></div>
     </div>
     <!-- 摇杆可用的拖动区域 -->
     <div class="drag" id="drag" style="height: 96rem; width: 96rem;"></div>
-
     <div class="test" id="test"></div>
     <script>
-        // 设置全局变量：操作盘背景直径，拖动区域直径，内部白色美观按钮直径，最大拖拽距离
-        var joystickLen = 7, dragLen, insideLen = 3, maxDragLen = 2;
+        // 操作盘直径，中心方向指示盘直径，最大拖拽距离
+        var joystickLen = 7, insideLen = 3, maxDragLen = 2;
+        var htmlRem = parseInt($("html").css("font-size").replace("px", ""));// html根标签的字体大小
+        var dragLen = $("html").width() / htmlRem;// 拖动区域宽度
+        var $joystick = $("#joystick") // 操作盘对象
+        var $drag = $("#drag") // 拖动有效区域对象
+        var $inside = $("#inside");     // 白色内盘对象
 
-        // 获取html的font-size值，所有控件将以rem作为单位，进行 rem <-> px 的互相转换
-        var htmlRem = parseInt($("html").css("font-size").replace("px", ""));
-        // 获得浏览器的宽度，转换成rem单位
-        dragLen = $("html").width() / htmlRem;
+        // 初始化控件大小（宽度、高度）
+        $joystick.css({
+            "height": (joystickLen - 0.5 * 2) + 'rem',
+            "width": (joystickLen - 0.5 * 2) + 'rem',
+            "marginLeft": -(joystickLen) / 2 + 'rem',
+            "marginBottom": (insideLen) + 'rem'
+        });    // 0.5*2是边框
+        $drag.css({
+            "height": dragLen + 'rem',
+            "width": dragLen + 'rem'
+        });
+        $inside.css({
+            "height": (insideLen - 0.3 * 2) + 'rem',
+            "width": (insideLen - 0.3 * 2) + 'rem',
+            "margin": ((joystickLen - 0.5 * 2) - insideLen) / 2 + 'rem'
+        });  // 高度减去边框
 
-        // 初始化
-        var joystick = document.getElementById('joystick'); // 操作盘
-        joystick.style.height = (joystickLen - 0.5 * 2) + 'rem';    // 0.5*2是边框
-        joystick.style.width = (joystickLen - 0.5 * 2) + 'rem';
-
-        var drag = document.getElementById('drag'); // 操作盘拖动区域
-        drag.style.height = dragLen + 'rem';
-        drag.style.width = dragLen + 'rem';
-
-        var inside = document.getElementById('inside');     // 白色内盘
-        inside.style.height = (insideLen - 0.3 * 2) + 'rem';
-        inside.style.width = (insideLen - 0.3 * 2) + 'rem';
-        inside.style.margin = (joystickLen - insideLen - 0.5 * 2) / 2 + 'rem';  // 设置居中
-
-        var prevTouch = "center-0";
-        var startX;
-        var startY;
-
-        // 初始化开始位移的位置
-        $('#drag').bind("touchstart", function (e) {
-            e.preventDefault();
-            var touch;
-            var touches = e.originalEvent.touches;
-            // 得到手指
-            for (var i = 0; i < touches.length; i++) {
-                if (touches[i].target.className == 'drag') {
-                    touch = touches[i];
-                    break;
-                }
+        // 下面一些的变量用于实现中心test方块的移动
+        var speed = 6;
+        var htmlWidth = parseFloat($("html").css("width").replace("px", ""));
+        var htmlHeight = parseFloat($("html").css("height").replace("px", ""));
+        var transx = 0, transy = 0, stepx = 0, stepy = 0;
+        var moving;
+        var move = function () {
+            transx += stepx;
+            transy += stepy;
+            $test = $("#test");
+            $test.css("transform", "translate(" + transx + "px," + transy + "px)")
+            var position = $test.offset();
+            if (position.left <= 0 || position.left >= (htmlWidth - 2 * htmlRem)) {
+                transx -= stepx;
+                $test.css("transform", "translate(" + transx + "px," + transy + "px)")
             }
-            if (touch.pageY > (dragLen - joystickLen / 2) * htmlRem) {
-                // 如果超出drag拖拽区域范围，就不进行位移了
-                return;
+            if (position.top <= 0 || position.top >= (htmlHeight - (2 + joystickLen + insideLen * 2) * htmlRem)) {
+                transy -= stepy;
+                $test.css("transform", "translate(" + transx + "px," + transy + "px)")
             }
-            // 手指点击的位置，一会儿joystick也会移动到这个位置
-            startX = touch.pageX;
-            startY = touch.pageY;
+        }
 
-            // 对joystick进行位移
-            var translateX = startX - ($("#joystick").offset().left + joystickLen * htmlRem / 2);
-            var translateY = startY - ($("#joystick").offset().top + joystickLen * htmlRem / 2);
-            $("#joystick").css("transform", "translate(" + translateX + "px," + translateY + "px)")
-
-        })
-
-        // 手指移动的时候（主逻辑）
-        $('#drag').bind('touchmove', function (e) {
+        var startX = htmlWidth / 2;
+        var startY = htmlHeight - (insideLen + joystickLen / 2) * htmlRem;     // 初始点击的位置
+        function dealTouch(e) {
             e.preventDefault();
-            var touch;
-            var touches = e.originalEvent.touches;  // 得到手指们
+            var touch, touches = e.originalEvent.touches;  // 得到手指们
             for (var i = 0; i < touches.length; i++) {
                 // 如果有多个手指，则得到按下inside或者drag的手指
                 if (touches[i].target.className == 'drag') {
@@ -168,7 +157,6 @@
             }
             var x = touch.pageX - startX;
             var y = touch.pageY - startY;
-
             // 超出最大距离，使用数学中圆的方法，限定x，y在圆的范围
             if (x * x + y * y > (htmlRem * maxDragLen) ** 2) {
                 // 更好的办法，使用tan和sin和cos
@@ -176,185 +164,34 @@
                 var atanXY = Math.atan(tanXY);
                 tempX = Math.cos(atanXY) * htmlRem * maxDragLen
                 tempY = Math.sin(atanXY) * htmlRem * maxDragLen
-                if (x < 0) {
-                    tempX = -tempX;
-                }
-                if (y < 0) {
-                    tempY = -tempY;
-                }
-                x = tempX;
-                y = tempY;
+                x = x < 0 ? -tempX : tempX;
+                y = y < 0 ? -tempY : tempY;
             }
             // 进行移动，主要是中间的小滑块进行移动
-            $("#inside").css('transform', 'translate(' + x + 'px,' + y + 'px)');
+            $inside.css('transform', 'translate(' + x + 'px,' + y + 'px)');
+            // 当滑动一定距离的时候，做出响应，主要是设置步长
+            x = x / (htmlRem * maxDragLen);
+            y = y / (htmlRem * maxDragLen);
+            stepx = (x == 0) ? 0 : x;
+            stepy = (y == 0) ? 0 : y;
+        }
 
-
-
-            // 当滑动一定距离的时候，做出响应
-            if (x * x + y * y > ((joystickLen - insideLen) * htmlRem / 2) ** 2) {
-                // 这里需要注意一下，y坐标是向下的
-                var judge = y / x;    // 算出tan值，这里的+(-)0.4和+(-)2.4是八个方位时临界的tan值
-                if (judge < -0.4 && judge > -2.4) {
-                    // up-left 和 down-right
-                    if (x > 0) {
-                        // up-left
-                        // 如果上一次滚动是自己，则不做操作
-                        if (prevTouch != "up-left") {
-                            dealTouch("up-left");
-                        }
-                    } else {
-                        // down-right
-                        if (prevTouch != "down-right") {
-                            dealTouch("down-right");
-                        }
-                    }
-                }
-                else if (judge > -0.4 && judge < 0.4) {
-                    // up 和 down
-                    if (x > 0) {
-                        // up
-                        if (prevTouch != "up-0") {
-                            dealTouch("up-0");
-                        }
-                    } else {
-                        // down
-                        if (prevTouch != "down-0") {
-                            dealTouch("down-0");
-                        }
-                    }
-                }
-                else if (judge < 2.4 && judge > 0.4) {
-                    if (y < 0) {
-                        //down-left
-                        if (prevTouch != "down-left") {
-                            dealTouch("down-left");
-                        }
-                    } else {
-                        //up-right
-                        if (prevTouch != "up-right") {
-                            dealTouch("up-right");
-                        }
-                    }
-                }
-                else if (judge <= -2.4 || judge >= 2.4) {
-                    // left 和 right
-                    if (y < 0) {
-                        // left
-                        if (prevTouch != "left-0") {
-                            dealTouch("left-0");
-                        }
-                    } else {
-                        //right
-                        if (prevTouch != "right-0") {
-                            dealTouch("right-0");
-                        }
-                    }
-                }
-            } else {
-                if (prevTouch != "center-0") {
-                    dealTouch("center-0");
-                }
-            }
-        });
-
-        $("#drag").bind("touchend", function (e) {
-            e.preventDefault();
-            dealTouch("center-0")
-            $("#inside").css('transform', 'none');
-            $("#joystick").css("transform", "none")
-
+        // 当用户手指按下的时候，调整操作盘joystick的位置
+        $drag.bind("touchstart", function (e) {
+            stepx = 0, stepy = 0;
+            moving = setInterval(move, speed)
+            dealTouch(e);
         })
-
-        // 处理请求
-        function dealTouch(nowTouch) {
-            var sBtn1 = nowTouch.split("-")[0];
-            var sBtn2 = nowTouch.split("-")[1];
-            // 如果是偏方位的话，这样处理
-            if (sBtn2 != "0") {
-                switch (prevTouch) {
-                    case sBtn1 + "-0": SendMsg("pressed", sBtn2); break;
-                    case sBtn2 + "-0": SendMsg("pressed", sBtn1); break;
-                    case "center-0": SendMsg("pressed", sBtn1), SendMsg("pressed", sBtn2); break;
-                }
-                prevTouch = sBtn1 + "-" + sBtn2;
-                return;
-            } else {
-                if (sBtn1 == "up" || sBtn1 == "down") {
-                    switch (prevTouch) {
-                        case sBtn1 + "-left": SendMsg("released", "left"); break;
-                        case sBtn1 + "-right": SendMsg("released", "right"); break;
-                        case "center-0": SendMsg("pressed", sBtn1);
-                    }
-                }
-                else if (sBtn1 == "left" || sBtn1 == "right") {
-                    switch (prevTouch) {
-                        case "up-" + sBtn1: SendMsg("released", "up"); break;
-                        case "down-" + sBtn1: SendMsg("released", "down"); break;
-                        case "center-0": SendMsg("pressed", sBtn1);
-                    }
-                }
-                else if (sBtn1 == "center") {
-                    var prevs = prevTouch.split("-");
-                    // 释放之前的按键
-                    SendMsg("released", prevs[0]);
-                    if (prevs[1] != "0") {
-                        SendMsg("released", prevs[1])
-                    }
-                }
-                prevTouch = sBtn1 + "-0";
-                console.log("更换：" + prevTouch)
-            }
-        }
-
-        var x = 0, y = 0;
-        var speed = 5;
-        var htmlWidth = parseFloat($("html").css("width").replace("px", ""));
-        var htmlHeight = parseFloat($("html").css("height").replace("px", ""));
-        var up = function () {
-            if (x < (htmlWidth / 2)) {
-                $("#test").css("transform", "translate(" + (x++) + "px," + y + "px)")
-            }
-        }
-        var down = function () {
-            if (x > -htmlWidth / 2) {
-                $("#test").css("transform", "translate(" + (x--) + "px," + y + "px)")
-            }
-        }
-        var right = function () {
-            if (y < htmlHeight / 2) {
-                $("#test").css("transform", "translate(" + x + "px," + (y++) + "px)")
-            }
-        }
-        var left = function () {
-            if (y > -htmlHeight / 2) {
-                $("#test").css("transform", "translate(" + x + "px," + (y--) + "px)")
-            }
-        }
-        var upInterval;
-        var downInterval;
-        var rightInterval;
-        var leftInterval;
-
-        function SendMsg(url, keyCode) {
-            console.log(url + ": " + keyCode)
-            if (url == "pressed") {
-                // 按下某个键
-                switch (keyCode) {
-                    case "up": upInterval = setInterval(up, speed); break;
-                    case "down": downInterval = setInterval(down, speed); break;
-                    case "right": rightInterval = setInterval(right, speed); break;
-                    case "left": leftInterval = setInterval(left, speed); break;
-                }
-            } else {
-                // 松开某个键
-                switch (keyCode) {
-                    case "up": clearInterval(upInterval); break;
-                    case "down": clearInterval(downInterval); break;
-                    case "right": clearInterval(rightInterval); break;
-                    case "left": clearInterval(leftInterval); break;
-                }
-            }
-        }   
+        // 手指移动的时候（主逻辑）
+        $drag.bind('touchmove', function (e) {
+            dealTouch(e);
+        });
+        // 手指离开的时候
+        $drag.bind("touchend", function (e) {
+            e.preventDefault();
+            $inside.css('transform', 'none');
+            clearInterval(moving);
+        })
     </script>
 
 
