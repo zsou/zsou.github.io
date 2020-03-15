@@ -49,7 +49,7 @@
             position: absolute;
             background-color: rgba(200, 200, 200, 0.3);
             /* 操作杆背景颜色*/
-            border: solid 0.5rem rgba(200, 200, 200, 0.1);
+            border: solid 0.1rem rgba(200, 200, 200, 0.1);
             /* 操作杆边框颜色*/
             border-radius: 50%;
             /* 用户不可选择复制控件文本 */
@@ -70,8 +70,8 @@
             /* 仅仅是为了美观这里，白色拖动按钮*/
             position: absolute;
             border-radius: 50%;
-            border: solid 0.3rem rgba(42, 42, 43, 0.2);
-            background-color: rgba(255, 255, 255, 0.8);
+            border: solid 0.3rem rgba(255, 255, 255, 0);
+            background-color: rgba(255, 255, 255, 0.7);
         }
 
         .test {
@@ -97,7 +97,7 @@
     <div class="test" id="test"></div>
     <script>
         // 操作盘直径，中心方向指示盘直径，最大拖拽距离
-        var joystickLen = 7, insideLen = 2, maxDragLen = 3.5;
+        var joystickLen = 6, insideLen = 2, maxDragLen = 2;
         var htmlRem = parseInt($("html").css("font-size").replace("px", ""));// html根标签的字体大小
         var dragLen = $("html").width() / htmlRem;// 拖动区域宽度
         var $joystick = $("#joystick") // 操作盘对象
