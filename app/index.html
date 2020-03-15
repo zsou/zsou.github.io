@@ -5,7 +5,7 @@
     <!-- 设置视口，内容宽度等于用户设备宽度，用户不能缩放 -->
     <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <title>神宠三国志</title>
+    <title>八方向操作杆</title>
     <script src="js/jquery-1.11.0.min.js"></script>
     <style>
         * {
@@ -39,7 +39,7 @@
             /* 拖动区域，在js里设置宽高 */
             border-radius: 50%;
             left: 0;
-            bottom: 0;
+            top: 0;
             position: fixed;
 
             display: flex;
@@ -48,12 +48,12 @@
         }
 
         .joystick {
-            bottom: 3rem;
-            left: 50%;
+            top: 3rem;
+            left: 2rem;
             position: absolute;
             background-color: rgba(200, 200, 200, 0.3);
             /* 操作杆背景颜色*/
-            border: solid 0.1rem rgba(200, 200, 200, 0.1);
+            border: solid 0.5rem rgba(200, 200, 200, 0.1);
             /* 操作杆边框颜色*/
             border-radius: 50%;
             /* 用户不可选择复制控件文本 */
@@ -74,8 +74,8 @@
             /* 仅仅是为了美观这里，白色拖动按钮*/
             position: absolute;
             border-radius: 50%;
-            border: solid 0.3rem rgba(255, 255, 255, 0);
-            background-color: rgba(255, 255, 255, 0.7);
+            border: solid 0.3rem rgba(42, 42, 43, 0.2);
+            background-color: rgba(255, 255, 255, 0.8);
         }
 
         .test {
@@ -102,7 +102,7 @@
     <div class="test" id="test"></div>
     <script>
         // 设置全局变量：操作盘背景直径，拖动区域直径，内部白色美观按钮直径，最大拖拽距离
-        var joystickLen = 7, dragLen, insideLen = 3, maxDragLen = 2;
+        var joystickLen = 7, dragLen, insideLen = 2, maxDragLen = 3.5;
 
         // 获取html的font-size值，所有控件将以rem作为单位，进行 rem <-> px 的互相转换
         var htmlRem = parseInt($("html").css("font-size").replace("px", ""));
