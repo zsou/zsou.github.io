@@ -78,14 +78,9 @@
         }
 
         .test {
-            width: 2rem;
-            height: 2rem;
-            left: 50%;
-            top: 50%;
-            margin: -1rem -1rem;
+            width: 10rem;
+            height: 10rem;
             position: absolute;
-            background-color: mediumaquamarine;
-            border-radius: 40%;
         }
     </style>
 </head>
@@ -97,7 +92,8 @@
     </div>
     <!-- 摇杆可用的拖动区域 -->
     <div class="drag" id="drag" style="height: 96rem; width: 96rem;"></div>
-    <div class="test" id="test"></div>
+    <img class="test" id="test" src="totoro.png" alt="">
+
     <script>
         // 操作盘直径，中心方向指示盘直径，最大拖拽距离
         var joystickLen = 7, insideLen = 3, maxDragLen = 2;
