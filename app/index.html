@@ -102,7 +102,7 @@
         // 操作盘直径，中心方向指示盘直径，最大拖拽距离
         var joystickLen = 7, insideLen = 3, maxDragLen = 2;
         var htmlRem = parseInt($("html").css("font-size").replace("px", ""));// html根标签的字体大小
-        var dragLen = $("html").width()/2 / htmlRem;// 拖动区域宽度
+        var dragLen = $("html").width() / htmlRem;// 拖动区域宽度
         var $joystick = $("#joystick") // 操作盘对象
         var $drag = $("#drag") // 拖动有效区域对象
         var $inside = $("#inside");     // 白色内盘对象
